@@ -2,7 +2,7 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, Send, Calendar, Activity, Settings, Search, LogOut,
 } from "lucide-react";
-import { logout, getUserEmail, getUserInitials } from "@/lib/auth";
+import { logout, getUserEmail, getUserInitials, getUserDisplayName } from "@/lib/auth";
 
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -18,6 +18,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const email = getUserEmail();
   const initials = getUserInitials();
+  const displayName = getUserDisplayName();
 
   const handleLogout = () => {
     logout();
@@ -59,6 +60,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2.5 px-2 py-1.5">
             <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-xs font-medium shrink-0">{initials}</div>
             <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium truncate">{displayName}</div>
               <div className="text-xs text-muted-foreground truncate">{email}</div>
             </div>
             <button
