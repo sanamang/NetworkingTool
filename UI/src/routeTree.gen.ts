@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as OutreachRouteImport } from './routes/outreach'
 import { Route as MeetingsRouteImport } from './routes/meetings'
@@ -17,6 +18,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ContactsIndexRouteImport } from './routes/contacts.index'
 import { Route as ContactsIdRouteImport } from './routes/contacts.$id'
 
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -54,6 +60,7 @@ const ContactsIdRoute = ContactsIdRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/login': typeof LoginRoute
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/meetings': typeof MeetingsRoute
@@ -63,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/contacts/': typeof ContactsIndexRoute
 }
 export interface FileRoutesByTo {
+  '/login': typeof LoginRoute
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/meetings': typeof MeetingsRoute
@@ -73,6 +81,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/login': typeof LoginRoute
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/meetings': typeof MeetingsRoute
@@ -84,6 +93,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/login'
     | '/'
     | '/activity'
     | '/meetings'
@@ -93,6 +103,7 @@ export interface FileRouteTypes {
     | '/contacts/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/login'
     | '/'
     | '/activity'
     | '/meetings'
@@ -102,6 +113,7 @@ export interface FileRouteTypes {
     | '/contacts'
   id:
     | '__root__'
+    | '/login'
     | '/'
     | '/activity'
     | '/meetings'
@@ -112,6 +124,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  LoginRoute: typeof LoginRoute
   IndexRoute: typeof IndexRoute
   ActivityRoute: typeof ActivityRoute
   MeetingsRoute: typeof MeetingsRoute
@@ -123,6 +136,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -176,6 +196,7 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  LoginRoute: LoginRoute,
   IndexRoute: IndexRoute,
   ActivityRoute: ActivityRoute,
   MeetingsRoute: MeetingsRoute,

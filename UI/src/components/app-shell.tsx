@@ -1,7 +1,8 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Users, Send, Calendar, Activity, Settings, Search,
+  LayoutDashboard, Users, Send, Calendar, Activity, Settings, Search, LogOut,
 } from "lucide-react";
+import { logout, getUserEmail, getUserInitials } from "@/lib/auth";
 
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -14,6 +15,14 @@ const nav = [
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+  const email = getUserEmail();
+  const initials = getUserInitials();
+
+  const handleLogout = () => {
+    logout();
+    navigate({ to: "/login" });
+  };
 
   return (
     <div className="min-h-screen flex w-full bg-background">
@@ -48,11 +57,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
         <div className="p-3 border-t border-sidebar-border">
           <div className="flex items-center gap-2.5 px-2 py-1.5">
-            <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-xs font-medium">AY</div>
+            <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-xs font-medium shrink-0">{initials}</div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium truncate">Alex Yang</div>
-              <div className="text-xs text-muted-foreground truncate">alex@networkos.app</div>
+              <div className="text-xs text-muted-foreground truncate">{email}</div>
             </div>
+            <button
+              onClick={handleLogout}
+              title="Sign out"
+              className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/60 transition-colors shrink-0"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+            </button>
           </div>
         </div>
       </aside>
