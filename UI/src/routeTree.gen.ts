@@ -9,8 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as OutreachRouteImport } from './routes/outreach'
 import { Route as MeetingsRouteImport } from './routes/meetings'
 import { Route as LoginRouteImport } from './routes/login'
@@ -19,14 +19,14 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ContactsIndexRouteImport } from './routes/contacts.index'
 import { Route as ContactsIdRouteImport } from './routes/contacts.$id'
 
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OutreachRoute = OutreachRouteImport.update({
@@ -69,10 +69,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
   '/meetings': typeof MeetingsRoute
   '/outreach': typeof OutreachRoute
   '/settings': typeof SettingsRoute
+  '/signup': typeof SignupRoute
   '/contacts/$id': typeof ContactsIdRoute
   '/contacts/': typeof ContactsIndexRoute
 }
@@ -80,10 +80,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
   '/meetings': typeof MeetingsRoute
   '/outreach': typeof OutreachRoute
   '/settings': typeof SettingsRoute
+  '/signup': typeof SignupRoute
   '/contacts/$id': typeof ContactsIdRoute
   '/contacts': typeof ContactsIndexRoute
 }
@@ -92,10 +92,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
   '/meetings': typeof MeetingsRoute
   '/outreach': typeof OutreachRoute
   '/settings': typeof SettingsRoute
+  '/signup': typeof SignupRoute
   '/contacts/$id': typeof ContactsIdRoute
   '/contacts/': typeof ContactsIndexRoute
 }
@@ -105,10 +105,10 @@ export interface FileRouteTypes {
     | '/'
     | '/activity'
     | '/login'
-    | '/signup'
     | '/meetings'
     | '/outreach'
     | '/settings'
+    | '/signup'
     | '/contacts/$id'
     | '/contacts/'
   fileRoutesByTo: FileRoutesByTo
@@ -116,10 +116,10 @@ export interface FileRouteTypes {
     | '/'
     | '/activity'
     | '/login'
-    | '/signup'
     | '/meetings'
     | '/outreach'
     | '/settings'
+    | '/signup'
     | '/contacts/$id'
     | '/contacts'
   id:
@@ -127,10 +127,10 @@ export interface FileRouteTypes {
     | '/'
     | '/activity'
     | '/login'
-    | '/signup'
     | '/meetings'
     | '/outreach'
     | '/settings'
+    | '/signup'
     | '/contacts/$id'
     | '/contacts/'
   fileRoutesById: FileRoutesById
@@ -139,28 +139,28 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActivityRoute: typeof ActivityRoute
   LoginRoute: typeof LoginRoute
-  SignupRoute: typeof SignupRoute
   MeetingsRoute: typeof MeetingsRoute
   OutreachRoute: typeof OutreachRoute
   SettingsRoute: typeof SettingsRoute
+  SignupRoute: typeof SignupRoute
   ContactsIdRoute: typeof ContactsIdRoute
   ContactsIndexRoute: typeof ContactsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/signup': {
       id: '/signup'
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/outreach': {
@@ -219,23 +219,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivityRoute: ActivityRoute,
   LoginRoute: LoginRoute,
-  SignupRoute: SignupRoute,
   MeetingsRoute: MeetingsRoute,
   OutreachRoute: OutreachRoute,
   SettingsRoute: SettingsRoute,
+  SignupRoute: SignupRoute,
   ContactsIdRoute: ContactsIdRoute,
   ContactsIndexRoute: ContactsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

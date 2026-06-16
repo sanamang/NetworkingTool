@@ -4,16 +4,11 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  HeadContent,
-  Scripts,
   redirect,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
-import { isAuthenticated } from "../lib/auth";
-
-import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+import { useEffect } from "react";
 import { Toaster } from "../components/ui/sonner";
+import { isAuthenticated } from "../lib/auth";
 
 function NotFoundComponent() {
   return (
@@ -38,10 +33,9 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    console.error(error);
   }, [error]);
 
   return (
@@ -51,7 +45,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           This page didn't load
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          Something went wrong. You can try refreshing or head back home.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -86,47 +80,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       throw redirect({ to: "/login" });
     }
   },
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "NetworkOS — Relationship Command Center" },
-      { name: "description", content: "AI-powered relationship management for professionals, founders, investors, and recruiters." },
-      { property: "og:title", content: "NetworkOS — Relationship Command Center" },
-      { property: "og:description", content: "AI-powered relationship management for professionals, founders, investors, and recruiters." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:title", content: "NetworkOS — Relationship Command Center" },
-      { name: "twitter:description", content: "AI-powered relationship management for professionals, founders, investors, and recruiters." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/6a567615-a173-4217-8222-cdc66a0ad89f/id-preview-434e4ee1--5990c836-b353-4f69-8f81-d34151c0593c.lovable.app-1780955114202.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/6a567615-a173-4217-8222-cdc66a0ad89f/id-preview-434e4ee1--5990c836-b353-4f69-8f81-d34151c0593c.lovable.app-1780955114202.png" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" },
-    ],
-  }),
-  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
-
-function RootShell({ children }: { children: ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  );
-}
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
