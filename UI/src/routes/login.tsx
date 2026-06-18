@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { login } from "@/lib/auth";
+import { login, loginWithOAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 
@@ -38,9 +38,17 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState<"google" | "apple" | null>(null);
 
-  const handleOAuth = (provider: string) => {
-    toast.info(`${provider} sign-in coming soon`, { description: "Use email and password for now." });
+  const handleOAuth = async (provider: "google" | "apple") => {
+    setOauthLoading(provider);
+    try {
+      await loginWithOAuth(provider);
+      // loginWithOAuth redirects the browser to the OAuth provider, so code below won't run.
+    } catch (err: any) {
+      toast.error(err.message ?? `${provider} sign-in failed`);
+      setOauthLoading(null);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -77,17 +85,25 @@ function LoginPage() {
           <div className="space-y-2.5 mb-5">
             <button
               type="button"
-              onClick={() => handleOAuth("Google")}
-              className="flex w-full items-center justify-center gap-3 h-10 rounded-lg border border-input bg-background text-sm font-medium text-foreground hover:bg-accent/50 transition-colors"
+              disabled={oauthLoading !== null}
+              onClick={() => handleOAuth("google")}
+              className="flex w-full items-center justify-center gap-3 h-10 rounded-lg border border-input bg-background text-sm font-medium text-foreground hover:bg-accent/50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <GoogleIcon /> Continue with Google
+              {oauthLoading === "google"
+                ? <span className="w-4 h-4 rounded-full border-2 border-foreground/30 border-t-foreground animate-spin" />
+                : <GoogleIcon />}
+              Continue with Google
             </button>
             <button
               type="button"
-              onClick={() => handleOAuth("Apple")}
-              className="flex w-full items-center justify-center gap-3 h-10 rounded-lg border border-input bg-background text-sm font-medium text-foreground hover:bg-accent/50 transition-colors"
+              disabled={oauthLoading !== null}
+              onClick={() => handleOAuth("apple")}
+              className="flex w-full items-center justify-center gap-3 h-10 rounded-lg border border-input bg-background text-sm font-medium text-foreground hover:bg-accent/50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <AppleIcon /> Continue with Apple
+              {oauthLoading === "apple"
+                ? <span className="w-4 h-4 rounded-full border-2 border-foreground/30 border-t-foreground animate-spin" />
+                : <AppleIcon />}
+              Continue with Apple
             </button>
           </div>
 

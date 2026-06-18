@@ -18,6 +18,7 @@ import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ContactsIndexRouteImport } from './routes/contacts.index'
 import { Route as ContactsIdRouteImport } from './routes/contacts.$id'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -64,6 +65,11 @@ const ContactsIdRoute = ContactsIdRouteImport.update({
   path: '/contacts/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/outreach': typeof OutreachRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/contacts/$id': typeof ContactsIdRoute
   '/contacts/': typeof ContactsIndexRoute
 }
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/outreach': typeof OutreachRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/contacts/$id': typeof ContactsIdRoute
   '/contacts': typeof ContactsIndexRoute
 }
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/outreach': typeof OutreachRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/contacts/$id': typeof ContactsIdRoute
   '/contacts/': typeof ContactsIndexRoute
 }
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/outreach'
     | '/settings'
     | '/signup'
+    | '/auth/callback'
     | '/contacts/$id'
     | '/contacts/'
   fileRoutesByTo: FileRoutesByTo
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/outreach'
     | '/settings'
     | '/signup'
+    | '/auth/callback'
     | '/contacts/$id'
     | '/contacts'
   id:
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/outreach'
     | '/settings'
     | '/signup'
+    | '/auth/callback'
     | '/contacts/$id'
     | '/contacts/'
   fileRoutesById: FileRoutesById
@@ -143,6 +155,7 @@ export interface RootRouteChildren {
   OutreachRoute: typeof OutreachRoute
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   ContactsIdRoute: typeof ContactsIdRoute
   ContactsIndexRoute: typeof ContactsIndexRoute
 }
@@ -212,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -223,6 +243,7 @@ const rootRouteChildren: RootRouteChildren = {
   OutreachRoute: OutreachRoute,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   ContactsIdRoute: ContactsIdRoute,
   ContactsIndexRoute: ContactsIndexRoute,
 }
