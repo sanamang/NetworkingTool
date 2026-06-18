@@ -1,21 +1,21 @@
 import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { login, isAuthenticated } from "@/lib/auth";
+import { login } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/login")({
-  beforeLoad: () => {
-    if (typeof window !== "undefined" && isAuthenticated()) {
-      throw redirect({ to: "/" });
-    }
+  beforeLoad: async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) throw redirect({ to: "/" });
   },
   component: LoginPage,
 });
 
 function GoogleIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
       <path d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z" fill="#4285F4"/>
       <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z" fill="#34A853"/>
       <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z" fill="#FBBC05"/>
@@ -26,22 +26,9 @@ function GoogleIcon() {
 
 function AppleIcon() {
   return (
-    <svg width="17" height="18" viewBox="0 0 814 1000" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <svg width="17" height="18" viewBox="0 0 814 1000" fill="currentColor">
       <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 388.7 43 249.9 86.9 166.2c28.8-54.1 82.3-88.7 140.8-88.7 54.1 0 94.8 35.9 143.5 35.9 47.5 0 96.5-37.8 154.3-37.8 23 0 108.4 2.6 168.5 88.6zm-97.4-194.3c25.3-30.1 43.5-72.4 43.5-114.7 0-5.8-.6-11.8-1.9-16.6-41.5 1.3-91.1 27.5-120.8 59.6-23 25-44.5 68.1-44.5 111.1 0 6.5.6 13 1.3 15.2 2.6.7 6.5 1.3 10.4 1.3 38.5 0 86.2-25.2 112-55.9z"/>
     </svg>
-  );
-}
-
-function OAuthButton({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex w-full items-center justify-center gap-3 h-10 rounded-lg border border-input bg-background text-sm font-medium text-foreground hover:bg-accent/50 transition-colors"
-    >
-      {icon}
-      {label}
-    </button>
   );
 }
 
@@ -53,31 +40,25 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   const handleOAuth = (provider: string) => {
-    toast.info(`${provider} sign-in coming soon`, {
-      description: "Use email and password for now.",
-    });
+    toast.info(`${provider} sign-in coming soon`, { description: "Use email and password for now." });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-
-    setTimeout(() => {
-      const success = login(email, password);
-      if (success) {
-        navigate({ to: "/" });
-      } else {
-        setError("Password must be at least 6 characters.");
-        setLoading(false);
-      }
-    }, 500);
+    try {
+      await login(email, password);
+      navigate({ to: "/" });
+    } catch (err: any) {
+      setError(err.message ?? "Invalid email or password.");
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "var(--gradient-subtle)" }}>
       <div className="w-full max-w-sm">
-        {/* Branding */}
         <div className="flex flex-col items-center mb-8">
           <div
             className="w-14 h-14 rounded-2xl flex items-center justify-center text-primary-foreground text-2xl font-semibold mb-4 shadow-[var(--shadow-elevated)]"
@@ -89,18 +70,27 @@ function LoginPage() {
           <p className="text-sm text-muted-foreground mt-1">Your relationship command center</p>
         </div>
 
-        {/* Card */}
         <div className="bg-card rounded-2xl border border-border p-7 shadow-[var(--shadow-elevated)]">
           <h2 className="text-lg font-semibold tracking-tight mb-1">Welcome back</h2>
           <p className="text-sm text-muted-foreground mb-6">Sign in to your account</p>
 
-          {/* OAuth buttons */}
           <div className="space-y-2.5 mb-5">
-            <OAuthButton icon={<GoogleIcon />} label="Continue with Google" onClick={() => handleOAuth("Google")} />
-            <OAuthButton icon={<AppleIcon />} label="Continue with Apple" onClick={() => handleOAuth("Apple")} />
+            <button
+              type="button"
+              onClick={() => handleOAuth("Google")}
+              className="flex w-full items-center justify-center gap-3 h-10 rounded-lg border border-input bg-background text-sm font-medium text-foreground hover:bg-accent/50 transition-colors"
+            >
+              <GoogleIcon /> Continue with Google
+            </button>
+            <button
+              type="button"
+              onClick={() => handleOAuth("Apple")}
+              className="flex w-full items-center justify-center gap-3 h-10 rounded-lg border border-input bg-background text-sm font-medium text-foreground hover:bg-accent/50 transition-colors"
+            >
+              <AppleIcon /> Continue with Apple
+            </button>
           </div>
 
-          {/* Divider */}
           <div className="relative mb-5">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-border" />
@@ -110,7 +100,6 @@ function LoginPage() {
             </div>
           </div>
 
-          {/* Email/password form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="text-sm font-medium text-foreground block mb-1.5">Email</label>
@@ -124,7 +113,6 @@ function LoginPage() {
                 className="w-full h-10 px-3 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-ring/50 transition"
               />
             </div>
-
             <div>
               <label className="text-sm font-medium text-foreground block mb-1.5">Password</label>
               <input
@@ -137,9 +125,7 @@ function LoginPage() {
                 className="w-full h-10 px-3 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-ring/50 transition"
               />
             </div>
-
             {error && <p className="text-sm text-destructive">{error}</p>}
-
             <Button
               type="submit"
               className="w-full font-medium"
