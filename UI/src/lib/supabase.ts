@@ -1,9 +1,21 @@
 import { createClient } from "@supabase/supabase-js";
 
-const url = import.meta.env.VITE_SUPABASE_URL as string;
-const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+const url = (import.meta.env.VITE_SUPABASE_URL as string | undefined) ?? "";
+const key = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ?? "";
 
-export const supabase = createClient(url, key);
+if (!url || !key) {
+  console.error(
+    "[NetworkOS] Missing env vars: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY must be set. " +
+    "Add them to Vercel → Project → Settings → Environment Variables and redeploy."
+  );
+}
+
+// Use placeholder values so createClient doesn't throw at module init when env vars are missing.
+// API calls will still fail until real values are deployed.
+export const supabase = createClient(
+  url || "https://placeholder.supabase.co",
+  key || "placeholder-key"
+);
 
 // ── lightweight avatar helpers (not stored in DB) ───────────────────────────
 const COLORS = [

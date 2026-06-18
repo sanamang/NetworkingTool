@@ -66,8 +66,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   beforeLoad: async ({ location }) => {
     const publicPaths = ["/login", "/signup"];
     if (publicPaths.includes(location.pathname)) return;
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw redirect({ to: "/login" });
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw redirect({ to: "/login" });
+    } catch (e) {
+      // Re-throw redirects; swallow Supabase config errors by redirecting to login
+      if (e && typeof e === "object" && "to" in e) throw e;
+      throw redirect({ to: "/login" });
+    }
   },
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
